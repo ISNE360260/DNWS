@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -389,7 +389,7 @@ namespace DNWS
                     {
                         AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
                         sb.Append("<h2>Player added successfully</h2>");
-                        sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
+                        sb.Append(String.Format("Please note your login is <b>{0}</b> . <br />", parameters["username"]));
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page</a>", parameters["username"]));
                     }
                     else
