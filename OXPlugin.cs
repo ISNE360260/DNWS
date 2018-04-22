@@ -138,7 +138,7 @@ namespace DNWS
         protected OXBoard _board;
         protected Player _xPlayer;
         protected Player _oPlayer;
-        protected char _player ;// always X first, life is not fair.
+        protected char _player = OXBoard.X_PLAYER; // always X first, life is not fair.
         protected int _index;
         protected char _status;
 
@@ -156,24 +156,11 @@ namespace DNWS
             set { _index = value; }
             get { return _index; }
         }
-        public char randomnumber()
-        {
-            Random rnd = new Random();
-            int number = rnd.Next(1,2);
-                    if(number==1){
-                        _player = OXBoard.X_PLAYER;
-                    }else{
-                        _player = OXBoard.O_PLAYER;
-                    }
-            return _player;
-        }
 
         public char Player
-        { 
+        {
             get { return _player; }
         }
-
-        
 
         public Player XPlayer
         {
@@ -185,8 +172,7 @@ namespace DNWS
         {
             get { return _oPlayer; }
             set { _oPlayer = value; }
-        }   
-        
+        }
 
         public static char X_WIN = 'x';
         public static char O_WIN = 'O';
@@ -352,8 +338,8 @@ namespace DNWS
                         }
                         else
                         {
-                            sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));   
-                        }     
+                            sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
+                        }
                     }
                     else
                     {
@@ -395,10 +381,7 @@ namespace DNWS
                     sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
                     sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
                     sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
-                    sb.Append("<input type=\"reset\" name=\"submit\" value=\"Reset the form\" /> <br />");
                     sb.Append("</form>");
-
-                    
                 }
                 else if (parameters["action"] == "addnewplayer") // create new player logic
                 {
@@ -484,7 +467,6 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "joingame")
                 {
-                
                     int id = Int16.Parse(parameters["game"]);
                     Game game = GetGameByID(id);
                     if (game.Status == Game.CREATED_X || game.Status == Game.CREATED_O)
@@ -513,7 +495,6 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "playgame")
                 {
-                   
                     Game game = GetGameByID(Int16.Parse(parameters["game"]));
                     char myPlayer;
                     char gameStatus = Game.CONT;
