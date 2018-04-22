@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -378,14 +378,15 @@ namespace DNWS
                     sb.Append("<h2>Create new player</h2>");
                     sb.Append("<form method=\"get\">");
                     sb.Append("Username: <input type=\"text\" name=\"username\" value=\"\" /> <br />");
-                    sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
+                    sb.Append("Password: <input type=\"password\" name=\"password\" value=\"\" /> <br />");
+                    sb.Append("Password confirm: <input type=\"password\" name=\"password_confirm\" value=\"\" /> <br />");
                     sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
-                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
+                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Create Player\" /> <br />");
                     sb.Append("</form>");
                 }
                 else if (parameters["action"] == "addnewplayer") // create new player logic
                 {
-                    if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
+                    if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "" && parameters["password"] == parameters["password_confirm"])
                     {
                         AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
                         sb.Append("<h2>Player added successfully</h2>");
@@ -394,7 +395,7 @@ namespace DNWS
                     }
                     else
                     {
-                        sb.Append("<h2>Error: Username/password are missing</h2>");
+                        sb.Append("<h2>Error: Username/password/password confirm are missing</h2>");
                         sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
 
                     }
