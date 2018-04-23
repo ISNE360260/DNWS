@@ -323,7 +323,7 @@ namespace DNWS
                     String oPlayer = (game.OPlayer != null) ? game.OPlayer.Name : "--";
                     sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td>", game.Index, xPlayer, oPlayer));
 
-                    if (parameters.ContainsKey("username") && (game.Status == Game.CONT || game.Status == Game.CREATED_O || game.Status == Game.CREATED_X) )
+                    if (parameters.ContainsKey("username") && (game.Status == Game.CONT || game.Status == Game.CREATED_O || game.Status == Game.CREATED_X))
                     {
                         if (parameters["username"] == xPlayer || parameters["username"] == oPlayer)
                         {
@@ -336,9 +336,14 @@ namespace DNWS
                                 sb.Append(String.Format("<td><a href=\"/ox?action=playgame&game={0}&username={1}\">Play</a>", game.Index, parameters["username"]));
                             }
                         }
-                        else
+
+                        else if (xPlayer == "--" || oPlayer == "--")
                         {
                             sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
+                        }
+                        else
+                        {
+                            sb.Append("<td>Full</td>");
                         }
                     }
                     else
@@ -354,9 +359,9 @@ namespace DNWS
                         else if (game.Status == Game.DRAW)
                         {
                             sb.Append("<td>Draw</td>");
-                        } 
-                        
-                        else if(game.Status != Game.CONT)
+                        }
+
+                        else if (game.Status != Game.CONT)
                         {
                             sb.Append("<td>WAITING</td>");
                         }
@@ -498,8 +503,8 @@ namespace DNWS
                     Game game = GetGameByID(Int16.Parse(parameters["game"]));
                     char myPlayer;
                     char gameStatus = Game.CONT;
-                    
-                 
+
+
                     if (game == null)
                     {
                         sb.Append("<h2>Error: game doesn't exists, start one at home page.");
@@ -515,12 +520,15 @@ namespace DNWS
                         {
                             sb.Append(String.Format("<h2>Game {0} between X:{1} and O:<u>{2}</u></h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
                         }
-                        if(game.XPlayer.Name == parameters["username"]) {
+                        if (game.XPlayer.Name == parameters["username"])
+                        {
                             myPlayer = OXBoard.X_PLAYER;
-                        } else {
+                        }
+                        else
+                        {
                             myPlayer = OXBoard.O_PLAYER;
                         }
-                        if(parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
+                        if (parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
                         {
                             gameStatus = game.Turn(Int16.Parse(parameters["row"]), Int16.Parse(parameters["col"]));
                         }
@@ -586,7 +594,7 @@ namespace DNWS
                             sb.Append("</table>");
                         }
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                    }                   
+                    }
                 }
             }
             response.body = Encoding.UTF8.GetBytes(sb.ToString());
