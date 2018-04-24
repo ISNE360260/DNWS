@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -498,8 +498,13 @@ namespace DNWS
                     Game game = GetGameByID(Int16.Parse(parameters["game"]));
                     char myPlayer;
                     char gameStatus = Game.CONT;
-                    
-                 
+                    if (game.Status != Game.CREATED_X || game.Status != Game.CREATED_O)
+                    {
+                        sb.Append("<h2>Error: can't join the game</h2> Game is either finished or someone already joins the game. Please go back to home page to join the other games or start a new one.");
+                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+
+                    }
+                 else {
                     if (game == null)
                     {
                         sb.Append("<h2>Error: game doesn't exists, start one at home page.");
@@ -587,6 +592,7 @@ namespace DNWS
                         }
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
                     }                   
+                }
                 }
             }
             response.body = Encoding.UTF8.GetBytes(sb.ToString());
