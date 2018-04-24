@@ -255,7 +255,15 @@ namespace DNWS
         private static OXGame _instance = null;
         protected List<Player> _playerList;
         protected List<Game> _gameList;
-
+        public int GetGameIndex()
+        {
+            int index = 0;
+            foreach(Game game in _gameList)
+            {
+                index++;
+            }
+            return (index);
+        }
         private OXGame()
         {
             _playerList = new List<Player>();
@@ -364,7 +372,7 @@ namespace DNWS
 
                 }
                 sb.Append("</tr></table>");
-                if (parameters.ContainsKey("username"))
+                if (parameters.ContainsKey("username")&&GetPlayerByUserName(parameters["username"]) != null)
                 {
                     sb.Append(String.Format("<a href=\"/ox?action=startgame&username={0}\">Start new game</a><br />", parameters["username"]));
 
@@ -380,7 +388,7 @@ namespace DNWS
                     sb.Append("Username: <input type=\"text\" name=\"username\" value=\"\" /> <br />");
                     sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
                     sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
-                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
+                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Create\" /> <br />");
                     sb.Append("</form>");
                 }
                 else if (parameters["action"] == "addnewplayer") // create new player logic
@@ -431,6 +439,9 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "startgame") // create new game
                 {
+                    int testIndex;
+                    testIndex = GetGameIndex();
+
                     sb.Append("<h2>Start new game</h2>");
                     sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=x&username={0}\">O</a>?<br /><br />", parameters["username"]));
                     sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
@@ -438,6 +449,8 @@ namespace DNWS
                 else if (parameters["action"] == "chooseside")
                 {
                     int id;
+                    int cur_intdex2 = GetGameIndex();
+                    string cur_index = cur_intdex2.ToString();
                     Player player = GetPlayerByUserName(parameters["username"]);
                     if (player == null)
                     {
@@ -446,6 +459,8 @@ namespace DNWS
                     }
                     else
                     {
+
+
                         if (parameters["side"] == "x") // choose to play as X
                         {
                             id = NewGame(player, null);
@@ -462,7 +477,9 @@ namespace DNWS
                         sb.Append("You will need to wait for another player to join the game.<br /><br />");
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
 
-                    }
+                    } 
+                    
+
 
                 }
                 else if (parameters["action"] == "joingame")
