@@ -495,10 +495,17 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "playgame")
                 {
+                    try
+                        {
                     Game game = GetGameByID(Int16.Parse(parameters["game"]));
                     char myPlayer;
                     char gameStatus = Game.CONT;
-                    
+                    }
+                        catch (Exception e)
+                        {
+                            sb.Append("Invalid game#");
+                            sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
+                        }
                  
                     if (game == null)
                     {
