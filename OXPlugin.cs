@@ -298,11 +298,20 @@ namespace DNWS
                     sb.Append("Password: <input type=\"password\" name=\"password\" value=\"\" /> <br />");
                     sb.Append("<input type=\"submit\" name=\"action\" value=\"Login\" /> <br />");
                     sb.Append("</form>");
-                }
+
+					sb.Append("<br>If you are new here, please click <a href=\"/ox?action=newplayer\">here</a> for create new player");
+				}
                 else
                 {
-                    sb.Append(String.Format("<h2>Wellcome {0}</h2>", parameters["username"]));
-                }
+					foreach (var username in OXGame._instance._playerList)
+					{
+						if (username.Name.Equals(parameters["username"]))
+						{
+							sb.Append(String.Format("<h2>Wellcome {0}</h2>", parameters["username"]));
+							break;
+						}
+					}
+				}
 
                 // Show player list
                 sb.Append("<h2>Player's List</h2>");
@@ -312,7 +321,7 @@ namespace DNWS
                     sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum));
                 }
                 sb.Append("</table>");
-                sb.Append("<a href=\"/ox?action=newplayer\">Create new player</a>");
+                
 
                 // Show game list
                 sb.Append("<h2>Game's List</h2>");
@@ -373,221 +382,222 @@ namespace DNWS
             }
             else //Action page
             {
-                if (parameters["action"] == "newplayer") // create new player page
-                {
-                    sb.Append("<h2>Create new player</h2>");
-                    sb.Append("<form method=\"get\">");
-                    sb.Append("Username: <input type=\"text\" name=\"username\" value=\"\" /> <br />");
-                    sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
-                    sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
-                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
-                    sb.Append("</form>");
-                }
-                else if (parameters["action"] == "addnewplayer") // create new player logic
-                {
-                    if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
-                    {
-                        AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
-                        sb.Append("<h2>Player added successfully</h2>");
-                        sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page</a>", parameters["username"]));
-                    }
-                    else
-                    {
-                        sb.Append("<h2>Error: Username/password are missing</h2>");
-                        sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
+				if (parameters["action"] == "newplayer") // create new player page
+				{
+					sb.Append("<h2>Create new player</h2>");
+					sb.Append("<form method=\"get\">");
+					sb.Append("Username: <input type=\"text\" name=\"username\" value=\"\" /> <br />");
+					sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
+					sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
+					sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
+					sb.Append("</form>");
+				}
+				else if (parameters["action"] == "addnewplayer") // create new player logic
+				{
+					if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
+					{
+						AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
+						sb.Append("<h2>Player added successfully</h2>");
+						sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
+						sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page</a>", parameters["username"]));
+					}
+					else
+					{
+						sb.Append("<h2>Error: Username/password are missing</h2>");
+						sb.Append("<a href=\"/ox?action=newplayer\">Click here to go back to create new player page</a><br>");
+						sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
 
-                    }
-                }
-                else if (parameters["action"] == "Login")
-                {
-                    Boolean succ = false;
-                    if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
-                    {
-                        foreach (Player player in _playerList)
-                        {
-                            if (succ = player.Login(parameters["username"], parameters["password"]))
-                            {
-                                break;
-                            }
-                        }
-                        if (succ)
-                        {
-                            sb.Append("<h2>Login successfully</h2>");
-                            sb.Append(String.Format("<a href=\"/ox?action=startgame&username={0}\">Start new game</a><br /><br />", parameters["username"]));
-                            sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                        }
-                        else
-                        {
-                            sb.Append("<h2>Error: Incorrect Username/password</h2>");
-                            sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
-                        }
-                    }
-                    else
-                    {
-                        sb.Append("<h2>Error: Username/password are missing</h2>");
-                        sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
-                    }
-                }
-                else if (parameters["action"] == "startgame") // create new game
-                {
-                    sb.Append("<h2>Start new game</h2>");
-                    sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=x&username={0}\">O</a>?<br /><br />", parameters["username"]));
-                    sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                }
-                else if (parameters["action"] == "chooseside")
-                {
-                    int id;
-                    Player player = GetPlayerByUserName(parameters["username"]);
-                    if (player == null)
-                    {
-                        sb.Append(String.Format("<h2>Error, user {0} not found</h2>", parameters["username"]));
-                        sb.Append("<a href=\"/ox\">Click here to go back to home page (you will need to login again)</a>");
-                    }
-                    else
-                    {
-                        if (parameters["side"] == "x") // choose to play as X
-                        {
-                            id = NewGame(player, null);
-                            Game game = GetGameByID(id);
-                            game.Status = Game.CREATED_X;
-                        }
-                        else
-                        {
-                            id = NewGame(player, null);
-                            Game game = GetGameByID(id);
-                            game.Status = Game.CREATED_O;
-                        }
-                        sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], id));
-                        sb.Append("You will need to wait for another player to join the game.<br /><br />");
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+					}
+				}
+				else if (parameters["action"] == "Login")
+				{
+					Boolean succ = false;
+					if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
+					{
+						foreach (Player player in _playerList)
+						{
+							if (succ = player.Login(parameters["username"], parameters["password"]))
+							{
+								break;
+							}
+						}
+						if (succ)
+						{
+							sb.Append("<h2>Login successfully</h2>");
+							sb.Append(String.Format("<a href=\"/ox?action=startgame&username={0}\">Start new game</a><br /><br />", parameters["username"]));
+							sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+						}
+						else
+						{
+							sb.Append("<h2>Error: Incorrect Username/password</h2>");
+							sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
+						}
+					}
+					else
+					{
+						sb.Append("<h2>Error: Username/password are missing</h2>");
+						sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
+					}
+				}
+				else if (parameters["action"] == "startgame") // create new game
+				{
+					sb.Append("<h2>Start new game</h2>");
+					sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=x&username={0}\">O</a>?<br /><br />", parameters["username"]));
+					sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+				}
+				else if (parameters["action"] == "chooseside")
+				{
+					int id;
+					Player player = GetPlayerByUserName(parameters["username"]);
+					if (player == null)
+					{
+						sb.Append(String.Format("<h2>Error, user {0} not found</h2>", parameters["username"]));
+						sb.Append("<a href=\"/ox\">Click here to go back to home page (you will need to login again)</a>");
+					}
+					else
+					{
+						if (parameters["side"] == "x") // choose to play as X
+						{
+							id = NewGame(player, null);
+							Game game = GetGameByID(id);
+							game.Status = Game.CREATED_X;
+						}
+						else
+						{
+							id = NewGame(player, null);
+							Game game = GetGameByID(id);
+							game.Status = Game.CREATED_O;
+						}
+						sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], id));
+						sb.Append("You will need to wait for another player to join the game.<br /><br />");
+						sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
 
-                    }
+					}
 
-                }
-                else if (parameters["action"] == "joingame")
-                {
-                    int id = Int16.Parse(parameters["game"]);
-                    Game game = GetGameByID(id);
-                    if (game.Status == Game.CREATED_X || game.Status == Game.CREATED_O)
-                    {
+				}
+				else if (parameters["action"] == "joingame")
+				{
+					int id = Int16.Parse(parameters["game"]);
+					Game game = GetGameByID(id);
+					if (game.Status == Game.CREATED_X || game.Status == Game.CREATED_O)
+					{
 
-                        if (game.Status == Game.CREATED_X)
-                        {
-                            game.OPlayer = GetPlayerByUserName(parameters["username"]);
-                        }
-                        else
-                        {
-                            game.XPlayer = GetPlayerByUserName(parameters["username"]);
-                        }
-                        game.Status = Game.CONT;
+						if (game.Status == Game.CREATED_X)
+						{
+							game.OPlayer = GetPlayerByUserName(parameters["username"]);
+						}
+						else
+						{
+							game.XPlayer = GetPlayerByUserName(parameters["username"]);
+						}
+						game.Status = Game.CONT;
 
-                        sb.Append("<h2>Game is started</h2>");
-                        sb.Append(String.Format("<a href=\"/ox?action=playgame&username={0}&game={1}\">Click here to go to your game</a><br /><br />", parameters["username"], id));
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                    }
-                    else
-                    {
-                        sb.Append("<h2>Error: can't join the game</h2> Game is either finished or someone already joins the game. Please go back to home page to join the other games or start a new one.");
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+						sb.Append("<h2>Game is started</h2>");
+						sb.Append(String.Format("<a href=\"/ox?action=playgame&username={0}&game={1}\">Click here to go to your game</a><br /><br />", parameters["username"], id));
+						sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+					}
+					else
+					{
+						sb.Append("<h2>Error: can't join the game</h2> Game is either finished or someone already joins the game. Please go back to home page to join the other games or start a new one.");
+						sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
 
-                    }
-                }
-                else if (parameters["action"] == "playgame")
-                {
-                    Game game = GetGameByID(Int16.Parse(parameters["game"]));
-                    char myPlayer;
-                    char gameStatus = Game.CONT;
-                    
-                 
-                    if (game == null)
-                    {
-                        sb.Append("<h2>Error: game doesn't exists, start one at home page.");
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                    }
-                    else
-                    {
-                        if (parameters["username"] == game.XPlayer.Name)
-                        {
-                            sb.Append(String.Format("<h2>Game {0} between X:<u>{1}</u> and O:{2}</h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
-                        }
-                        else
-                        {
-                            sb.Append(String.Format("<h2>Game {0} between X:{1} and O:<u>{2}</u></h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
-                        }
-                        if(game.XPlayer.Name == parameters["username"]) {
-                            myPlayer = OXBoard.X_PLAYER;
-                        } else {
-                            myPlayer = OXBoard.O_PLAYER;
-                        }
-                        if(parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
-                        {
-                            gameStatus = game.Turn(Int16.Parse(parameters["row"]), Int16.Parse(parameters["col"]));
-                        }
+					}
+				}
+				else if (parameters["action"] == "playgame")
+				{
+					Game game = GetGameByID(Int16.Parse(parameters["game"]));
+					char myPlayer;
+					char gameStatus = Game.CONT;
 
-                        if (game.Status == Game.X_WIN)
-                        {
-                            sb.Append("<h2>X WIN!!!</h2>");
-                        }
-                        else if (game.Status == Game.O_WIN)
-                        {
-                            sb.Append("<h2>O WIN!!!</h2>");
-                        }
-                        else if (game.Status == Game.DRAW)
-                        {
-                            sb.Append("<h2>Draw</h2>");
-                        }
-                        else // Game is not finished yet
-                        {
-                            char[,] board = game.Board.Board;
-                            char currentPlayer = game.Player;
-                            String playLink;
 
-                            if (currentPlayer == myPlayer)
-                            {
-                                playLink = String.Format("/ox?action=playgame&game={0}&username={1}&side={2}", parameters["game"], parameters["username"], currentPlayer);
-                            }
-                            else
-                            {
-                                playLink = "";
-                                sb.Append("It's not your turn, please wait for your turn. You might need to reload the page.");
-                            }
+					if (game == null)
+					{
+						sb.Append("<h2>Error: game doesn't exists, start one at home page.");
+						sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+					}
+					else
+					{
+						if (parameters["username"] == game.XPlayer.Name)
+						{
+							sb.Append(String.Format("<h2>Game {0} between X:<u>{1}</u> and O:{2}</h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
+						}
+						else
+						{
+							sb.Append(String.Format("<h2>Game {0} between X:{1} and O:<u>{2}</u></h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
+						}
+						if (game.XPlayer.Name == parameters["username"]) {
+							myPlayer = OXBoard.X_PLAYER;
+						} else {
+							myPlayer = OXBoard.O_PLAYER;
+						}
+						if (parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
+						{
+							gameStatus = game.Turn(Int16.Parse(parameters["row"]), Int16.Parse(parameters["col"]));
+						}
 
-                            sb.Append("<table border=\"1\">");
-                            for (int row = 0; row != 3; row++)
-                            {
-                                sb.Append("<tr>");
-                                for (int col = 0; col != 3; col++)
-                                {
-                                    sb.Append("<td>");
-                                    if (board[row, col] == OXBoard.X_PLAYER)
-                                    {
-                                        sb.Append(OXBoard.X_PLAYER);
-                                    }
-                                    else if (board[row, col] == OXBoard.O_PLAYER)
-                                    {
-                                        sb.Append(OXBoard.O_PLAYER);
-                                    }
-                                    else
-                                    {
-                                        if (playLink != "")
-                                        {
-                                            sb.Append(String.Format("<a href=\"{0}&row={1}&col={2}\">?</a>", playLink, row, col));
-                                        }
-                                        else
-                                        {
-                                            sb.Append("&nbsp;");
-                                        }
-                                    }
-                                    sb.Append("</td>");
-                                }
-                                sb.Append("</tr>");
-                            }
-                            sb.Append("</table>");
-                        }
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                    }                   
-                }
+						if (game.Status == Game.X_WIN)
+						{
+							sb.Append("<h2>X WIN!!!</h2>");
+						}
+						else if (game.Status == Game.O_WIN)
+						{
+							sb.Append("<h2>O WIN!!!</h2>");
+						}
+						else if (game.Status == Game.DRAW)
+						{
+							sb.Append("<h2>Draw</h2>");
+						}
+						else // Game is not finished yet
+						{
+							char[,] board = game.Board.Board;
+							char currentPlayer = game.Player;
+							String playLink;
+
+							if (currentPlayer == myPlayer)
+							{
+								playLink = String.Format("/ox?action=playgame&game={0}&username={1}&side={2}", parameters["game"], parameters["username"], currentPlayer);
+							}
+							else
+							{
+								playLink = "";
+								sb.Append("It's not your turn, please wait for your turn. You might need to reload the page.");
+							}
+
+							sb.Append("<table border=\"1\">");
+							for (int row = 0; row != 3; row++)
+							{
+								sb.Append("<tr>");
+								for (int col = 0; col != 3; col++)
+								{
+									sb.Append("<td>");
+									if (board[row, col] == OXBoard.X_PLAYER)
+									{
+										sb.Append(OXBoard.X_PLAYER);
+									}
+									else if (board[row, col] == OXBoard.O_PLAYER)
+									{
+										sb.Append(OXBoard.O_PLAYER);
+									}
+									else
+									{
+										if (playLink != "")
+										{
+											sb.Append(String.Format("<a href=\"{0}&row={1}&col={2}\">?</a>", playLink, row, col));
+										}
+										else
+										{
+											sb.Append("&nbsp;");
+										}
+									}
+									sb.Append("</td>");
+								}
+								sb.Append("</tr>");
+							}
+							sb.Append("</table>");
+						}
+						
+					}
+				}
             }
             response.body = Encoding.UTF8.GetBytes(sb.ToString());
             return response;
