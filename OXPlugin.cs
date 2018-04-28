@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace DNWS
 {
@@ -42,7 +44,16 @@ namespace DNWS
 
         public Boolean Login(String name, String password)
         {
-            if (name.Equals(_name) && password.Equals(_password))
+
+            String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                            password: password,
+                            salt: System.Text.Encoding.Unicode.GetBytes(name),
+                            prf: KeyDerivationPrf.HMACSHA1,
+                            iterationCount:10000,
+                            numBytesRequested:256/8)
+                            );
+
+            if (name.Equals(_name) && hashed.Equals(_password))
             {
                 return true;
             }
@@ -367,7 +378,6 @@ namespace DNWS
                 if (parameters.ContainsKey("username"))
                 {
                     sb.Append(String.Format("<a href=\"/ox?action=startgame&username={0}\">Start new game</a><br />", parameters["username"]));
-
                 }
 
             }
@@ -387,6 +397,7 @@ namespace DNWS
                 {
                     if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
                     {
+                        
                         AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
                         sb.Append("<h2>Player added successfully</h2>");
                         sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
@@ -604,7 +615,16 @@ namespace DNWS
 
         public int AddPlayer(String name, String password)
         {
-            Player player = new Player(name, password);
+
+            //Hashing password using username as salt
+            String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                            password: password.Trim(),
+                            salt: System.Text.Encoding.Unicode.GetBytes(name.Trim()),
+                            prf: KeyDerivationPrf.HMACSHA1,
+                            iterationCount:10000,
+                            numBytesRequested:256/8)
+            );
+            Player player = new Player(name, hashed);
             _playerList.Add(player);
             int index = _playerList.IndexOf(player);
             return index;
