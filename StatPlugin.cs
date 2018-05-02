@@ -34,7 +34,13 @@ namespace DNWS
       sb.Append("<html><body><h1>Stat:</h1>");
       foreach (KeyValuePair<String, int> entry in statDictionary)
       {
-        sb.Append(entry.Key + ": " + entry.Value.ToString() + "<br />");
+        //
+        String var1=entry.Key;
+        var1=var1.Remove(0,1);
+        //
+
+        //sb.Append(entry.Key + ": " + entry.Value.ToString() + "<br />");
+        sb.Append(var1+": "+entry.Value.ToString()+"<br />");
       }
       sb.Append("</body></html>");
       response = new HTTPResponse(200);

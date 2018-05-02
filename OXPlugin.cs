@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace DNWS
 {
+    
     public class Player
     {
         protected String _name;
@@ -273,13 +274,21 @@ namespace DNWS
             }
             return _instance;
         }
+        
         public HTTPResponse GetResponse(HTTPRequest request)
-        {
+        {   
+            
             HTTPResponse response = new HTTPResponse(200);
             StringBuilder sb = new StringBuilder();
             Dictionary<String, String> parameters = new Dictionary<string, string>();
+            sb.Append(DateTime.Now.ToString());
             sb.Append("<h1>OX Game</h1>");
+            sb.Append("<audio controls>");
+            sb.Append("<source src=\"menu.mp3\" type=\"audio/mpeg\">");
+            sb.Append("</audio>");
+
             String[] parts = Regex.Split(request.Filename, "[?]");
+            
             if (parts.Length > 1)
             {
                 // http://stackoverflow.com/a/4982122
@@ -306,10 +315,18 @@ namespace DNWS
 
                 // Show player list
                 sb.Append("<h2>Player's List</h2>");
-                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td></tr>");
+                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td><td>Rank</td></tr>");
                 foreach (Player player in _playerList)
-                {
-                    sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum));
+                {if(player.WinNum <= 0){
+                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Beginer"));
+                    }
+                   else if(player.WinNum >0 && player.WinNum<=5){
+                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Nomal"));
+                    }
+                    else if(player.WinNum > 5) {
+                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Master"));
+                    }
+                   
                 }
                 sb.Append("</table>");
                 sb.Append("<a href=\"/ox?action=newplayer\">Create new player</a>");
@@ -546,12 +563,14 @@ namespace DNWS
                             if (currentPlayer == myPlayer)
                             {
                                 playLink = String.Format("/ox?action=playgame&game={0}&username={1}&side={2}", parameters["game"], parameters["username"], currentPlayer);
+                             
                             }
                             else
                             {
                                 playLink = "";
                                 sb.Append("It's not your turn, please wait for your turn. You might need to reload the page.");
                             }
+                            
 
                             sb.Append("<table border=\"1\">");
                             for (int row = 0; row != 3; row++)
