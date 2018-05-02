@@ -189,7 +189,7 @@ namespace DNWS
             _oPlayer = oPlayer;
             _board = new OXBoard();
         }
-
+		
         public char Turn(int row, int col)
         {
             char win;
@@ -263,9 +263,17 @@ namespace DNWS
             AddPlayer("pruet", "pruet");
             AddPlayer("lulu", "lulu");
         }
-
-        //Singleton, so people can play game together
-        public static OXGame GetInstance()
+		public int GetGameIndex()
+		{
+			int index = 0;
+			foreach (Game game in _gameList)
+			{
+				index++;
+			}
+			return (index);
+		}
+		//Singleton, so people can play game together
+		public static OXGame GetInstance()
         {
             if (_instance == null)
             {
@@ -431,38 +439,51 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "startgame") // create new game
                 {
+					int test_index;
+					test_index = GetGameIndex();
                     sb.Append("<h2>Start new game</h2>");
-                    sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=x&username={0}\">O</a>?<br /><br />", parameters["username"]));
+                    sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}&index={1}\">X</a> or <a href=\"/ox?action=chooseside&side=o&username={0}&index={1}\">O</a>?<br /><br />", parameters["username"],test_index));
                     sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
                 }
                 else if (parameters["action"] == "chooseside")
                 {
                     int id;
+					int current_index2 = GetGameIndex();
+					String current_index = current_index2.ToString();
                     Player player = GetPlayerByUserName(parameters["username"]);
-                    if (player == null)
-                    {
-                        sb.Append(String.Format("<h2>Error, user {0} not found</h2>", parameters["username"]));
-                        sb.Append("<a href=\"/ox\">Click here to go back to home page (you will need to login again)</a>");
-                    }
-                    else
-                    {
-                        if (parameters["side"] == "x") // choose to play as X
-                        {
-                            id = NewGame(player, null);
-                            Game game = GetGameByID(id);
-                            game.Status = Game.CREATED_X;
-                        }
-                        else
-                        {
-                            id = NewGame(player, null);
-                            Game game = GetGameByID(id);
-                            game.Status = Game.CREATED_O;
-                        }
-                        sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], id));
-                        sb.Append("You will need to wait for another player to join the game.<br /><br />");
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+					if (player == null)
+					{
+						sb.Append(String.Format("<h2>Error, user {0} not found</h2>", parameters["username"]));
+						sb.Append("<a href=\"/ox\">Click here to go back to home page (you will need to login again)</a>");
+					}
+					else
+					{
+						if (parameters["index"] == current_index)
+						{
+							if (parameters["side"] == "x") // choose to play as X
+							{
+								id = NewGame(player, null);
+								Game game = GetGameByID(id);
+								game.Status = Game.CREATED_X;
+							}
+							else
+							{
+								id = NewGame( null, player);
+								Game game = GetGameByID(id);
+								game.Status = Game.CREATED_O;
+							}
+							sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], id));
+							sb.Append("You will need to wait for another player to join the game.<br /><br />");
+							sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
 
-                    }
+						}
+						else
+						{
+							sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], parameters["index"]));
+							sb.Append("You will need to wait for another player to join the game.<br /><br />");
+							sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+						}
+					}
 
                 }
                 else if (parameters["action"] == "joingame")
