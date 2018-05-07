@@ -336,9 +336,12 @@ namespace DNWS
                                 sb.Append(String.Format("<td><a href=\"/ox?action=playgame&game={0}&username={1}\">Play</a>", game.Index, parameters["username"]));
                             }
                         }
-                        else
+                        else if(parameters["username"] != xPlayer && oPlayer == null)
                         {
                             sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
+                        }
+                        else  {
+                            sb.Append(String.Format("<td>Playing"));
                         }
                     }
                     else
