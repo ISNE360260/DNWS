@@ -598,7 +598,7 @@ namespace DNWS
             Game game = new Game(XPlayer, YPlayer);
             _gameList.Add(game);
             int index = _gameList.IndexOf(game);
-            game.Index = index;
+            game.Index = index+1;               //add 1 value for make game.Index start by 1 by not affect to another part
             return index;
         }
 
