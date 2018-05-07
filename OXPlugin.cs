@@ -364,10 +364,13 @@ namespace DNWS
 
                 }
                 sb.Append("</tr></table>");
-                if (parameters.ContainsKey("username"))
+                if (parameters.ContainsKey("username") && GetPlayerByUserName(parameters["username"]) !=null)
                 {
                     sb.Append(String.Format("<a href=\"/ox?action=startgame&username={0}\">Start new game</a><br />", parameters["username"]));
 
+                }
+                else{
+                    sb.Append(String.Format("</br>Don't try to play without registration first !"));
                 }
 
             }
