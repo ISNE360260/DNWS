@@ -621,24 +621,30 @@ namespace DNWS
         public int AddPlayer(String name, String password)
         {
 
-            byte[] salt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(salt);
-            }
+            Player check_player = GetPlayerByUserName(name);
+            if(check_player == null){
+                byte[] salt = new byte[128 / 8];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
 
-            //Hashing password using username as salt
-            String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                //Hashing password using username as salt
+                String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                             password: password.Trim(),
                             salt: salt,
                             prf: KeyDerivationPrf.HMACSHA1,
                             iterationCount:10000,
                             numBytesRequested:256/8)
-            );
-            Player player = new Player(name, hashed, salt);
-            _playerList.Add(player);
-            int index = _playerList.IndexOf(player);
-            return index;
+                );
+                Player player = new Player(name, hashed, salt);
+                _playerList.Add(player);
+                int index = _playerList.IndexOf(player);
+                return index;
+            }
+            else{
+                return -1;
+            }
         }
 
         public Game GetGameByID(int index)
