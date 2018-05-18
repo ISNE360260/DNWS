@@ -283,9 +283,7 @@ namespace DNWS
             Dictionary<String, String> parameters = new Dictionary<string, string>();
             sb.Append(DateTime.Now.ToString());
             sb.Append("<h1>OX Game</h1>");
-            sb.Append("<audio controls>");
-            sb.Append("<source src=\"menu.mp3\" type=\"audio/mpeg\">");
-            sb.Append("</audio>");
+           
 
             String[] parts = Regex.Split(request.Filename, "[?]");
             
@@ -544,14 +542,31 @@ namespace DNWS
 
                         if (game.Status == Game.X_WIN)
                         {
+                            TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);   
                             sb.Append("<h2>X WIN!!!</h2>");
                         }
                         else if (game.Status == Game.O_WIN)
                         {
+                             TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>Draw!!!</h2>")
                             sb.Append("<h2>O WIN!!!</h2>");
                         }
                         else if (game.Status == Game.DRAW)
                         {
+                            TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>Draw!!!</h2>")
                             sb.Append("<h2>Draw</h2>");
                         }
                         else // Game is not finished yet
