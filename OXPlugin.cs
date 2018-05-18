@@ -313,18 +313,10 @@ namespace DNWS
 
                 // Show player list
                 sb.Append("<h2>Player's List</h2>");
-                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td><td>Rank</td></tr>");
+                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td></tr>");
                 foreach (Player player in _playerList)
-                {if(player.WinNum <= 0){
-                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Beginer"));
-                    }
-                   else if(player.WinNum >0 && player.WinNum<=5){
-                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Nomal"));
-                    }
-                    else if(player.WinNum > 5) {
-                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Master"));
-                    }
-                   
+                {
+                    sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum));
                 }
                 sb.Append("</table>");
                 sb.Append("<a href=\"/ox?action=newplayer\">Create new player</a>");
