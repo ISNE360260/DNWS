@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace DNWS
 {
+    
     public class Player
     {
         protected String _name;
@@ -278,13 +279,19 @@ namespace DNWS
             }
             return _instance;
         }
+        
         public HTTPResponse GetResponse(HTTPRequest request)
-        {
+        {   
+            
             HTTPResponse response = new HTTPResponse(200);
             StringBuilder sb = new StringBuilder();
             Dictionary<String, String> parameters = new Dictionary<string, string>();
+            sb.Append(DateTime.Now.ToString());
             sb.Append("<h1>OX Game</h1>");
+           
+
             String[] parts = Regex.Split(request.Filename, "[?]");
+            
             if (parts.Length > 1)
             {
                 // http://stackoverflow.com/a/4982122
@@ -580,14 +587,17 @@ namespace DNWS
 
                         if (game.Status == Game.X_WIN)
                         {
+                           
                             sb.Append("<h2>X WIN!!!</h2>");
                         }
                         else if (game.Status == Game.O_WIN)
                         {
+                            
                             sb.Append("<h2>O WIN!!!</h2>");
                         }
                         else if (game.Status == Game.DRAW)
                         {
+                           
                             sb.Append("<h2>Draw</h2>");
                         }
                         else // Game is not finished yet
@@ -599,12 +609,14 @@ namespace DNWS
                             if (currentPlayer == myPlayer)
                             {
                                 playLink = String.Format("/ox?action=playgame&game={0}&username={1}&side={2}", parameters["game"], parameters["username"], currentPlayer);
+                             
                             }
                             else
                             {
                                 playLink = "";
                                 sb.Append("It's not your turn, please wait for your turn. You might need to reload the page.");
                             }
+                            
 
                             sb.Append("<table border=\"1\">");
                             for (int row = 0; row != 3; row++)
