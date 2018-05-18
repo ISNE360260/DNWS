@@ -20,6 +20,10 @@ namespace DNWS
         {
             get { return _password; }
         }
+        protected byte[] _salt;
+        public String Salt{
+            get { return Encoding.Unicode.GetString(_salt, 0, _salt.Length); }
+        }
         protected int _winNum = 0;
         public int WinNum
         {
@@ -36,10 +40,11 @@ namespace DNWS
             get { return _lossNum; }
         }
 
-        public Player(String name, String password)
+        public Player(String name, String password, byte[] salt)
         {
             _name = name;
             _password = password;
+            _salt = salt;
         }
 
         public Boolean Login(String name, String password)
@@ -47,7 +52,7 @@ namespace DNWS
 
             String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                             password: password,
-                            salt: System.Text.Encoding.Unicode.GetBytes(name),
+                            salt: _salt,
                             prf: KeyDerivationPrf.HMACSHA1,
                             iterationCount:10000,
                             numBytesRequested:256/8)
@@ -616,15 +621,21 @@ namespace DNWS
         public int AddPlayer(String name, String password)
         {
 
+            byte[] salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
             //Hashing password using username as salt
             String hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                             password: password.Trim(),
-                            salt: System.Text.Encoding.Unicode.GetBytes(name.Trim()),
+                            salt: salt,
                             prf: KeyDerivationPrf.HMACSHA1,
                             iterationCount:10000,
                             numBytesRequested:256/8)
             );
-            Player player = new Player(name, hashed);
+            Player player = new Player(name, hashed, salt);
             _playerList.Add(player);
             int index = _playerList.IndexOf(player);
             return index;
