@@ -337,7 +337,6 @@ namespace DNWS
                             {
                                 sb.Append("<td>Wait</td>");
                             }
-<<<<<<< HEAD
                             else
                             {
                                 sb.Append(String.Format("<td><a href=\"/ox?action=playgame&game={0}&username={1}\">Play</a>", game.Index, parameters["username"]));
@@ -345,19 +344,6 @@ namespace DNWS
                         }
 
                         else if (xPlayer == "--" || oPlayer == "--")
-=======
-							else if (xPlayer == "--" || oPlayer == "--")
-							{
-								sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
-							}
-							else
-							{
-
-								sb.Append("<td>full</td>");
-							}
-						}
-                        else
->>>>>>> f1665424c97360379dca8d267856103bef213bc8
                         {
                             sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
                         }
@@ -656,14 +642,12 @@ namespace DNWS
                         }
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
                     }
-<<<<<<< HEAD
-=======
+
                 }
             else
                 {
                     sb.Append("<h2>This action isn't unaviable !!!</u></h2>");
                     sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
->>>>>>> f1665424c97360379dca8d267856103bef213bc8
                 }
             }
             response.Body = Encoding.UTF8.GetBytes(sb.ToString());
