@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace DNWS
 {
-    
     public class Player
     {
         protected String _name;
@@ -95,13 +94,18 @@ namespace DNWS
             {
                 return false;
             }
+            if (row > 2 || row < 0 || col > 2 || col < 0){
+                return false;
+            }
             if (_board[row, col] != EMPTY)
             {
                 return false;
             }
-            _board[row, col] = player;
-            _playCount++;
-            return true;
+            else{
+                _board[row, col] = player;
+                _playCount++;
+                return true;
+            }
         }
 
         public char CheckWin()
@@ -176,7 +180,7 @@ namespace DNWS
         }
 
         public static char X_WIN = 'x';
-        public static char O_WIN = 'O';
+        public static char O_WIN = 'o';
         public static char DRAW = 'D';
         public static char CONT = 'C';
         public static char ERROR = 'E';
@@ -274,21 +278,20 @@ namespace DNWS
             }
             return _instance;
         }
-        
         public HTTPResponse GetResponse(HTTPRequest request)
-        {   
-            
+        {
+           //
+           stop.start();
+           Thread.sleep(1000);
+           //
             HTTPResponse response = new HTTPResponse(200);
             StringBuilder sb = new StringBuilder();
             Dictionary<String, String> parameters = new Dictionary<string, string>();
-            sb.Append(DateTime.Now.ToString());
             sb.Append("<h1>OX Game</h1>");
-           
-
             String[] parts = Regex.Split(request.Filename, "[?]");
-            
             if (parts.Length > 1)
             {
+                
                 // http://stackoverflow.com/a/4982122
                 parameters = parts[1].Split('&').Select(x => x.Split('=')).ToDictionary(x => x[0].ToLower(), x => x[1]);
             }
@@ -308,19 +311,28 @@ namespace DNWS
                 }
                 else
                 {
-                    sb.Append(String.Format("<h2>Wellcome {0}</h2>", parameters["username"]));
+                    sb.Append(String.Format("<h2>Welcome {0}</h2>", parameters["username"]));
                 }
 
                 // Show player list
                 sb.Append("<h2>Player's List</h2>");
-                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td></tr>");
+                sb.Append("<table border=\"1\"><tr><td>Name</td><td>Win</td><td>Loss</td><td>Draw</td><td>Rank</td></tr>");
                 foreach (Player player in _playerList)
                 {
-                    sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum));
+                    if(player.WinNum <= 0){
++                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Beginer"));
++                    }
++                   else if(player.WinNum >0 && player.WinNum<=5){
++                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Nomal"));
++                    }
++                    else if(player.WinNum > 5) {
++                        sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", player.Name, player.WinNum, player.LostNum, player.DrawNum,"Master"));
++                    }
                 }
                 sb.Append("</table>");
-                sb.Append("<a href=\"/ox?action=newplayer\">Create new player</a>");
-
+		if (!parameters.ContainsKey("username")) {
+                	sb.Append("<a href=\"/ox?action=newplayer\">Create new player</a>");
+		}
                 // Show game list
                 sb.Append("<h2>Game's List</h2>");
                 sb.Append("<table border=\"1\"><tr><td>Game #</td><td>X</td><td>O</td><td>Action</td></tr>");
@@ -330,7 +342,7 @@ namespace DNWS
                     String oPlayer = (game.OPlayer != null) ? game.OPlayer.Name : "--";
                     sb.Append(String.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td>", game.Index, xPlayer, oPlayer));
 
-                    if (parameters.ContainsKey("username") && (game.Status == Game.CONT || game.Status == Game.CREATED_O || game.Status == Game.CREATED_X) )
+                    if (parameters.ContainsKey("username") && (game.Status == Game.CONT || game.Status == Game.CREATED_O || game.Status == Game.CREATED_X))
                     {
                         if (parameters["username"] == xPlayer || parameters["username"] == oPlayer)
                         {
@@ -338,11 +350,16 @@ namespace DNWS
                             {
                                 sb.Append("<td>Wait</td>");
                             }
-                            else
-                            {
-                                sb.Append(String.Format("<td><a href=\"/ox?action=playgame&game={0}&username={1}\">Play</a>", game.Index, parameters["username"]));
-                            }
-                        }
+							else if (xPlayer == "--" || oPlayer == "--")
+							{
+								sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
+							}
+							else
+							{
+
+								sb.Append("<td>full</td>");
+							}
+						}
                         else
                         {
                             sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
@@ -352,20 +369,42 @@ namespace DNWS
                     {
                         if (game.Status == Game.X_WIN)
                         {
-                            sb.Append("<td>X Win</td>");
+                            stop.Stop();
+                            TimeSpan ts=stop.Elapsed;
+                            string elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                            ts.Hours,ts.Minutues,ts.Secounds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>X WIN!!!</h2>");
+
                         }
                         else if (game.Status == Game.O_WIN)
                         {
-                            sb.Append("<td>O Win</td>");
+                            stop.Stop();
+                            TimeSpan ts=stop.Elapsed;
+                            string elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                            ts.Hours,ts.Minutues,ts.Secounds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>O WIN!!!</h2>");
                         }
                         else if (game.Status == Game.DRAW)
                         {
-                            sb.Append("<td>Draw</td>");
-                        } 
-                        
-                        else if(game.Status != Game.CONT)
+                            stop.Stop();
+                            TimeSpan ts=stop.Elapsed;
+                            string elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                            ts.Hours,ts.Minutues,ts.Secounds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>Draw</h2>");
+                        }
+
+                        else if (game.Status != Game.CONT)
                         {
                             sb.Append("<td>WAITING</td>");
+                        }
+                        else{          //new impliment 24/4/2561
+                            sb.Append("<td>Cancle</td>");
                         }
                     }
 
@@ -385,23 +424,43 @@ namespace DNWS
                     sb.Append("<h2>Create new player</h2>");
                     sb.Append("<form method=\"get\">");
                     sb.Append("Username: <input type=\"text\" name=\"username\" value=\"\" /> <br />");
-                    sb.Append("Password: <input type=\"text\" name=\"password\" value=\"\" /> <br />");
+                    sb.Append("Password: <input type=\"password\" name=\"password\" value=\"\" /> <br />");
                     sb.Append("<input type=\"hidden\" name=\"action\" value=\"addnewplayer\" /> <br />");
-                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Login\" /> <br />");
+                    sb.Append("<input type=\"submit\" name=\"submit\" value=\"Create\" /> <br />");
                     sb.Append("</form>");
                 }
                 else if (parameters["action"] == "addnewplayer") // create new player logic
                 {
-                    if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
+                    if (parameters["password"].Length < 8)
                     {
-                        AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
-                        sb.Append("<h2>Player added successfully</h2>");
-                        sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
-                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page</a>", parameters["username"]));
+                        sb.Append("<h2>Error: Password should to 8 characters or more than 8 characters!!</h2>");
+                        sb.Append("<a href=\"/ox?action=newplayer\">Click here to fill again!!</a>");
+                        sb.Append("<br>");
+                        sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
                     }
+
+                    else if (parameters.ContainsKey("username") && parameters["username"] != "" && parameters.ContainsKey("password") && parameters["password"] != "")
+                    {
+                        Player player = GetPlayerByUserName(parameters["username"]);
+                        if(player == null)
+                        {
+                            AddPlayer(parameters["username"].Trim(), parameters["password"].Trim());
+                            sb.Append("<h2>Player added successfully</h2>");
+                            sb.Append(String.Format("Please note your login is <b>{0}</b> and password is <b>{1}</b>. <br />", parameters["username"], parameters["password"]));
+                            sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page</a>", parameters["username"]));
+                        }
+                        else
+                        {
+                            sb.Append("<h2>Username exists, please change username</h2>");
+                            sb.Append("<a href=\"/ox?action=newplayer\">Click here to go back to register page</a>");
+                        }   
+                    }
+
                     else
                     {
                         sb.Append("<h2>Error: Username/password are missing</h2>");
+                        sb.Append("<a href=\"/ox?action=newplayer\">Click here to fill again!!</a>");
+                        sb.Append("<br>");
                         sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
 
                     }
@@ -438,9 +497,18 @@ namespace DNWS
                 }
                 else if (parameters["action"] == "startgame") // create new game
                 {
-                    sb.Append("<h2>Start new game</h2>");
-                    sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=x&username={0}\">O</a>?<br /><br />", parameters["username"]));
-                    sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+                    if (parameters["username"] != "x" || parameters["username"] != "o")//check if username parameter is x or o
+                    {
+                        sb.Append(String.Format("<h2>Error, user {0} Is not valid</h2>", parameters["username"]));
+                        sb.Append("<a href=\"/ox\">Click here to go back to home page (you will need to login again)</a>");
+                    }
+                    else
+                    {
+                        sb.Append("<h2>Start new game</h2>");
+                        sb.Append(String.Format("Choose side: <a href=\"/ox?action=chooseside&side=x&username={0}\">X</a> or <a href=\"/ox?action=chooseside&side=o&username={0}\">O</a>?<br /><br />", parameters["username"]));
+                        sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
+                    }
+                    
                 }
                 else if (parameters["action"] == "chooseside")
                 {
@@ -453,18 +521,21 @@ namespace DNWS
                     }
                     else
                     {
+						
                         if (parameters["side"] == "x") // choose to play as X
                         {
                             id = NewGame(player, null);
                             Game game = GetGameByID(id);
                             game.Status = Game.CREATED_X;
+
                         }
-                        else
-                        {
-                            id = NewGame(player, null);
+						else
+						{
+                            id = NewGame( null, player);
                             Game game = GetGameByID(id);
                             game.Status = Game.CREATED_O;
-                        }
+				
+						}
                         sb.Append(String.Format("<h2>Start new game by {0} as {1}. The game ID is {2}.</h2>", parameters["username"], parameters["side"], id));
                         sb.Append("You will need to wait for another player to join the game.<br /><br />");
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
@@ -505,8 +576,8 @@ namespace DNWS
                     Game game = GetGameByID(Int16.Parse(parameters["game"]));
                     char myPlayer;
                     char gameStatus = Game.CONT;
-                    
-                 
+
+
                     if (game == null)
                     {
                         sb.Append("<h2>Error: game doesn't exists, start one at home page.");
@@ -522,30 +593,52 @@ namespace DNWS
                         {
                             sb.Append(String.Format("<h2>Game {0} between X:{1} and O:<u>{2}</u></h2>", parameters["game"], game.XPlayer.Name, game.OPlayer.Name));
                         }
-                        if(game.XPlayer.Name == parameters["username"]) {
+                        if (game.XPlayer.Name == parameters["username"])
+                        {
                             myPlayer = OXBoard.X_PLAYER;
-                        } else {
+                        }
+                        else
+                        {
                             myPlayer = OXBoard.O_PLAYER;
                         }
-                        if(parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
+                        if (parameters.ContainsKey("row") && parameters.ContainsKey("col")) // User wants to play
                         {
+                            try{
                             gameStatus = game.Turn(Int16.Parse(parameters["row"]), Int16.Parse(parameters["col"]));
+                            }catch(Exception e){
+                                sb.Append("Out off scope");
+                            }
                         }
 
                         if (game.Status == Game.X_WIN)
                         {
-                           
-                            sb.Append("<h2>X WIN!!!</h2>");
+                           stop.Stop();
+                            TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>X WIN!!!</h2>")
                         }
                         else if (game.Status == Game.O_WIN)
                         {
-                            
-                            sb.Append("<h2>O WIN!!!</h2>");
+                             stop.Stop();
+                            TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>O WIN!!!</h2>")
                         }
                         else if (game.Status == Game.DRAW)
                         {
-                           
-                            sb.Append("<h2>Draw</h2>");
+                            stop.Stop();
+                            TimeSpan ts =stop.Elapsed;
+                            String elapsedTime=String.Format("{0:00}:{1:00}:{2:00}.{3:00}", 
+                            ts.Hours,ts.Minuites,ts.Seconds,
+                            ts.Milliseconds/10);
+                            sb.Append("<h2>RunTime</h2>"+elapsedTime);
+                            sb.Append("<h2>Draw!!!</h2>")
                         }
                         else // Game is not finished yet
                         {
@@ -556,14 +649,12 @@ namespace DNWS
                             if (currentPlayer == myPlayer)
                             {
                                 playLink = String.Format("/ox?action=playgame&game={0}&username={1}&side={2}", parameters["game"], parameters["username"], currentPlayer);
-                             
                             }
                             else
                             {
                                 playLink = "";
                                 sb.Append("It's not your turn, please wait for your turn. You might need to reload the page.");
                             }
-                            
 
                             sb.Append("<table border=\"1\">");
                             for (int row = 0; row != 3; row++)
@@ -584,7 +675,18 @@ namespace DNWS
                                     {
                                         if (playLink != "")
                                         {
-                                            sb.Append(String.Format("<a href=\"{0}&row={1}&col={2}\">?</a>", playLink, row, col));
+                                            
+                                              
+                                            if (myPlayer == OXBoard.X_PLAYER)
+                                            {
+                                                sb.Append(String.Format("<a href=\"{0}&row={1}&col={2}\">X</a>", playLink, row, col));
+                                            }
+                                                else if (myPlayer == OXBoard.O_PLAYER)
+                                            {
+                                                sb.Append(String.Format("<a href=\"{0}&row={1}&col={2}\">O</a>", playLink, row, col));
+                                            }
+                                               
+                                            
                                         }
                                         else
                                         {
@@ -598,10 +700,15 @@ namespace DNWS
                             sb.Append("</table>");
                         }
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
-                    }                   
+                    }
+                }
+            else
+                {
+                    sb.Append("<h2>This action isn't unaviable !!!</u></h2>");
+                    sb.Append("<a href=\"/ox\">Click here to go back to home page</a>");
                 }
             }
-            response.body = Encoding.UTF8.GetBytes(sb.ToString());
+            response.Body = Encoding.UTF8.GetBytes(sb.ToString());
             return response;
         }
 
@@ -617,7 +724,12 @@ namespace DNWS
         public int AddPlayer(String name, String password)
         {
             Player player = new Player(name, password);
-            _playerList.Add(player);
+            Player check_player = GetPlayerByUserName(name);
+            if(check_player == null)
+            {
+                _playerList.Add(player);
+                Console.WriteLine("{0} added successfully.", name);
+            }
             int index = _playerList.IndexOf(player);
             return index;
         }
