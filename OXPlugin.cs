@@ -337,19 +337,19 @@ namespace DNWS
                             {
                                 sb.Append("<td>Wait</td>");
                             }
-							else if (xPlayer == "--" || oPlayer == "--")
-							{
-								sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
-							}
-							else
-							{
+                            else
+                            {
+                                sb.Append(String.Format("<td><a href=\"/ox?action=playgame&game={0}&username={1}\">Play</a>", game.Index, parameters["username"]));
+                            }
+                        }
 
-								sb.Append("<td>full</td>");
-							}
-						}
-                        else
+                        else if (xPlayer == "--" || oPlayer == "--")
                         {
                             sb.Append(String.Format("<td><a href=\"/ox?action=joingame&game={0}&username={1}\">Join</a>", game.Index, parameters["username"]));
+                        }
+                        else
+                        {
+                            sb.Append("<td>Full</td>");
                         }
                     }
                     else
@@ -651,6 +651,7 @@ namespace DNWS
                         }
                         sb.Append(String.Format("<a href=\"/ox?username={0}\">Click here to go back to home page.</a>", parameters["username"]));
                     }
+
                 }
             else
                 {
