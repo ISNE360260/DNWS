@@ -7,10 +7,14 @@ namespace DNWS
 {
   public class HTTPRequest
   {
+
+    protected Cookie _cookie;
+
     public const string METHOD_POST = "POST";
     public const string METHOD_GET = "GET";
     public const string METHOD_DELETE = "DELETE";
     public const string METHOD_OPTIONS = "OPTIONS";
+
     protected String _url;
     protected String _filename;
     protected Dictionary<String, String> _propertyListDictionary = null;
@@ -112,6 +116,11 @@ namespace DNWS
           AddProperty(pair[0], pair[1]);
         }
       }
+
+      _cookie = new Cookie(getPropertyByKey("cookie"));
+
+      HTTPProcessor.cookie = _cookie;
+
     }
     public String GetPropertyByKey(String key)
     {

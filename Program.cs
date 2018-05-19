@@ -83,6 +83,9 @@ namespace DNWS
 
     public class PluginManager
     {
+
+        static public Cookie cookie;
+
         private static PluginManager _instance = null;
         private Dictionary<string, PluginInfo> plugins = null;
         private Program _parent;
@@ -248,6 +251,8 @@ namespace DNWS
 
             request = new HTTPRequest(requestStr.ToString());
             request.AddProperty("RemoteEndPoint", _client.RemoteEndPoint.ToString());
+
+            cookie.Set("test","sdfsdf");
 
             // We can handle only GET now
             if(request.Status != 200) {
